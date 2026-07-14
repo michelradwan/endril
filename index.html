@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campanha de Arrecadação</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Utmify Scripts -->
+    <script
+        src="https://cdn.utmify.com.br/scripts/utms/latest.js"
+        data-utmify-prevent-xcod-sck
+        data-utmify-prevent-subids
+        async
+        defer
+    ></script>
+    <script>
+        window.pixelId = "6a559bcfb01b17465fbbd05c";
+        var a = document.createElement("script");
+        a.setAttribute("async", "");
+        a.setAttribute("defer", "");
+        a.setAttribute("src", "https://cdn.utmify.com.br/scripts/pixel/pixel.js");
+        document.head.appendChild(a);
+    </script>
+    <!-- End Utmify Scripts -->
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="js/gateway-pix.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#20c05c', /* Ajustado para match com a imagem */
+                            700: '#15803d',
+                            800: '#166534',
+                        },
+                        gray: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            500: '#6b7280',
+                            800: '#1f2937',
+                            900: '#111827'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f9fafb;
+            color: #111827;
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Clean transitions */
+        .transition-default {
+            transition: all 0.2s ease-in-out;
+        }
+
+        /* Progress Bar */
+        .progress-bar-anim {
+            width: 0;
+            transition: width 1s ease-out;
+        }
+
+        /* Modals */
+        .modal-overlay {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            transform: translateY(10px);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .value-btn {
+            border: 1px solid #d1d5db;
+            color: #4b5563;
+        }
+        .value-btn:hover {
+            border-color: #20c05c;
+            color: #20c05c;
+            background-color: #f0fdf4;
+        }
+        .value-btn.selected {
+            background-color: #20c05c;
+            color: white;
+            border-color: #20c05c;
+        }
+
+        /* Like Animation */
+        .like-icon {
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.2s ease;
+        }
+
+        /* Dropdown Menu Animation */
+        .dropdown-menu {
+            transform-origin: top right;
+            transform: scale(0.95);
+            opacity: 0;
+            visibility: hidden;
+            transition: transform 0.2s ease, opacity 0.2s ease, visibility 0.2s ease;
+        }
+        .dropdown-menu.active {
+            transform: scale(1);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Toast Animation */
+        .toast-notification {
+            transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .toast-notification.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body class="pb-24">
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-40 shadow-sm">
+        <div class="max-w-[720px] mx-auto px-6 h-16 flex items-center justify-between relative">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-primary-700 rounded flex items-center justify-center text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
+                        <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                    </svg>
+                </div>
+                <span class="font-semibold text-gray-900 text-base flex items-center gap-1.5">Campanha <span class="font-normal text-gray-500">para</span> Endril</span>
+            </div>
+            
+            <div class="relative">
+                <button onclick="toggleMenu()" class="w-10 h-10 border border-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-50 transition-default">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-gray-600">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                    </svg>
+                </button>
+
+                <!-- Dropdown Menu -->
+                <div id="header-menu" class="dropdown-menu absolute top-12 right-0 bg-white rounded-xl shadow-xl border border-gray-100 p-2 min-w-[200px] z-50">
+                    <button onclick="switchTab('sobre')" class="w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">Sobre</button>
+                    <button onclick="switchTab('atualizacoes')" class="w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">Atualizações</button>
+                    <button onclick="switchTab('comentarios')" class="w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors mb-2">Comentários</button>
+                    <button onclick="openDonationModal()" class="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold text-sm py-2.5 rounded-lg transition-colors">DOAR AGORA</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-[720px] mx-auto pt-24 px-6">
+        <!-- Hero section -->
+        <div class="text-center flex flex-col items-center mt-2 mb-8">
+            <div class="bg-[#e9f7ef] text-primary-700 text-[11px] font-bold tracking-widest px-4 py-1.5 rounded-full mb-5 uppercase inline-block">
+                SOLIDARIEDADE / FAMÍLIA
+            </div>
+            <h1 class="text-3xl md:text-4xl leading-tight font-bold text-gray-900 mb-4 max-w-[600px]">
+                Endril, 12 anos, vende pastéis para sustentar a família
+            </h1>
+            <p class="text-gray-600 text-base md:text-lg max-w-[640px] leading-relaxed mb-6">
+                Em vez de brincar, Endril pega a bicicleta do pai e enfrenta o calor do Nordeste para vender pastéis — cada venda ajuda a colocar comida na mesa.
+            </p>
+        </div>
+
+        <!-- Main Image Card -->
+        <div class="bg-white rounded-lg p-3 md:p-4 shadow-sm border border-gray-100 mb-6">
+            <div class="w-full rounded bg-gray-50 overflow-hidden border border-gray-100">
+                <img src="imagens/image.png" alt="Endril e sua família" class="w-full h-auto object-cover">
+            </div>
+            
+            <div class="flex items-center justify-between mt-4 px-2 pb-1">
+                <div class="flex items-center gap-2 text-sm font-medium text-gray-800">
+                    <div class="bg-gray-100 p-1.5 rounded-full border border-gray-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-gray-500">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                        </svg>
+                    </div>
+                    Campanha de Vaquinha do Endril 
+                    <svg class="w-4 h-4 text-[#00c853]" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                </div>
+                <div class="text-xs text-gray-500 font-medium">
+                    10 de Julho, 2026
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress bar and Verification -->
+        <div class="bg-white rounded-lg p-6 md:p-8 shadow-sm border border-gray-100 mb-10">
+            <div class="flex justify-between items-end mb-3">
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Progresso da Arrecadação</span>
+                <span class="text-[#00c853] font-bold text-sm">13%</span>
+            </div>
+            <div class="w-full bg-gray-100 h-2.5 rounded overflow-hidden mb-5">
+                <div id="progress-bar" class="bg-[#00c853] h-full progress-bar-anim" style="width: 0%" data-target="13%"></div>
+            </div>
+            <div class="flex items-baseline gap-2 mb-6">
+                <span class="text-3xl font-bold text-[#00c853]">R$ 12.018</span>
+                <span class="text-sm font-medium text-gray-500">de R$ 95.000</span>
+            </div>
+
+            <!-- Divisor -->
+            <div class="w-full h-px bg-gray-100 mb-6"></div>
+
+            <!-- Verification & Organizer Layout -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex items-center gap-1.5 text-[12px] text-gray-500 font-bold bg-gray-50 px-3 py-1.5 rounded border border-gray-200">
+                    <svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                    CAMPANHA VERIFICADA
+                </div>
+
+                <div class="flex items-center gap-3 bg-white px-3 py-1.5 rounded-full border border-gray-100 shadow-sm text-sm">
+                    <div class="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
+                        <span class="text-blue-600 font-bold text-[11px]">ES</span>
+                    </div>
+                    <div class="text-left">
+                        <p class="text-[9px] text-gray-400 uppercase tracking-widest font-bold leading-none mb-1">Organizador Verificado</p>
+                        <p class="text-gray-900 font-bold leading-none text-xs">Equipe Solidariedade</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs (Pill style) -->
+        <div class="flex mb-8">
+            <div class="inline-flex rounded-full border border-gray-200 bg-white p-1 shadow-sm w-full md:w-auto">
+                <button onclick="switchTab('sobre')" id="tab-sobre" class="nav-tab active flex-1 md:flex-none px-6 py-2 text-sm rounded-full bg-white shadow font-semibold text-gray-900 transition-default">Sobre</button>
+                <button onclick="switchTab('atualizacoes')" id="tab-atualizacoes" class="nav-tab flex-1 md:flex-none px-6 py-2 text-sm rounded-full text-gray-500 hover:text-gray-900 transition-default">Atualizações (3)</button>
+                <button onclick="switchTab('comentarios')" id="tab-comentarios" class="nav-tab flex-1 md:flex-none px-6 py-2 text-sm rounded-full text-gray-500 hover:text-gray-900 transition-default">Quem ajudou</button>
+            </div>
+        </div>
+
+        <!-- TAB CONTENT: SOBRE -->
+        <div id="content-sobre" class="tab-content">
+            <div class="flex flex-col mb-16">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6 border-l-4 border-primary-600 pl-4">
+                    "Em vez de brincar, Endril enfrenta o calor para vender pastéis."
+                </h2>
+
+                <div class="text-gray-700 text-base leading-relaxed space-y-5">
+                    <p>
+                        Endril tem apenas 12 anos. Enquanto outras crianças brincam, ele pega a bicicleta do pai e enfrenta o calor do Nordeste para vender pastéis.
+                    </p>
+                    <p>
+                        Cada venda ajuda a colocar comida na mesa. Não é escolha — é necessidade.
+                    </p>
+                    <p>
+                        A família precisa de apoio imediato para melhorias na moradia, alimentação, aquisição de móveis e itens básicos, visando garantir uma condição de vida com maior dignidade.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex flex-col mb-16">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6 border-l-4 border-primary-600 pl-4">
+                    Um menino que carrega responsabilidades de adulto.
+                </h2>
+
+                <div class="text-gray-700 text-base leading-relaxed space-y-5">
+                    <p>
+                        O sonho de Endril é simples: ter uma televisão em casa. Mas antes que esse sonho possa se realizar, a família necessita do essencial — um teto seguro, alimentação diária e estabilidade financeira.
+                    </p>
+                    <p class="font-medium text-gray-900 mt-6">
+                        Destinação dos recursos arrecadados:
+                    </p>
+                    
+                    <ul class="space-y-4 mt-4 bg-gray-50 p-6 rounded border border-gray-100">
+                        <li class="flex items-start gap-3">
+                            <svg class="w-5 h-5 text-primary-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-700">Reforma emergencial e melhorias na moradia familiar.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <svg class="w-5 h-5 text-primary-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-700">Garantia de segurança alimentar e provisões básicas mensais.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <svg class="w-5 h-5 text-primary-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-700">Aquisição de móveis e eletrodomésticos essenciais.</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <button onclick="openDonationModal()" class="mt-8 bg-primary-600 hover:bg-primary-700 text-white w-full py-4 rounded font-semibold text-base transition-default shadow flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                        <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                    </svg>
+                    APOIAR ESTA CAUSA
+                </button>
+                <div class="mt-4 flex items-center justify-center gap-2 text-xs text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                    </svg>
+                    Transação 100% segura e processada via PIX
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB CONTENT: ATUALIZAÇÕES -->
+        <div id="content-atualizacoes" class="tab-content hidden mb-12">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-baseline gap-3">
+                Atualizações da Campanha
+                <span class="text-sm font-normal text-gray-400">3 atualizações</span>
+            </h2>
+
+            <div class="space-y-4">
+                <!-- Update 1 -->
+                <div class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="text-xs font-semibold text-gray-400 uppercase tracking-widest">13 DE JULHO DE 2026</span>
+                        <span class="bg-[#e9f7ef] text-[#16a34a] text-xs font-bold px-3 py-1 rounded-full">Atualização</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-3">Endril continua vendendo pastéis pela família</h3>
+                    <p class="text-gray-600 text-[15px] leading-relaxed mb-6">
+                        Endril segue enfrentando o calor do Nordeste para vender pastéis e ajudar em casa. Continuamos precisando de apoio para moradia, alimentação e itens básicos.
+                    </p>
+                    <div class="w-full h-px bg-gray-50 mb-6"></div>
+                    <button onclick="openDonationModal()" class="bg-primary-600 hover:bg-primary-700 text-white font-semibold text-sm px-5 py-2.5 rounded transition-colors flex items-center gap-2">
+                        Ajudar o Endril agora <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+                    </button>
+                </div>
+
+                <!-- Update 2 -->
+                <div class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="text-xs font-semibold text-gray-400 uppercase tracking-widest">13 DE JULHO DE 2026</span>
+                        <span class="bg-[#e9f7ef] text-[#16a34a] text-xs font-bold px-3 py-1 rounded-full">Atualização</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-3">Primeiras doações recebidas</h3>
+                    <p class="text-gray-600 text-[15px] leading-relaxed mb-6">
+                        Graças aos doadores, já iniciamos o apoio para a família do Endril. Seguimos firmes pela meta de melhorias na moradia e alimentação!
+                    </p>
+                    <div class="w-full h-px bg-gray-50 mb-6"></div>
+                    <button onclick="openDonationModal()" class="bg-primary-600 hover:bg-primary-700 text-white font-semibold text-sm px-5 py-2.5 rounded transition-colors flex items-center gap-2">
+                        Ajudar o Endril agora <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+                    </button>
+                </div>
+
+                <!-- Update 3 -->
+                <div class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="text-xs font-semibold text-gray-400 uppercase tracking-widest">13 DE JULHO DE 2026</span>
+                        <span class="bg-[#e9f7ef] text-[#16a34a] text-xs font-bold px-3 py-1 rounded-full">Atualização</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-3">Campanha iniciada</h3>
+                    <p class="text-gray-600 text-[15px] leading-relaxed mb-6">
+                        Iniciamos a arrecadação para melhorias na moradia, alimentação, móveis e apoio à família do Endril no Nordeste. A campanha tem meta de R$ 95.000.
+                    </p>
+                    <div class="w-full h-px bg-gray-50 mb-6"></div>
+                    <button onclick="openDonationModal()" class="bg-primary-600 hover:bg-primary-700 text-white font-semibold text-sm px-5 py-2.5 rounded transition-colors flex items-center gap-2">
+                        Ajudar o Endril agora <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB CONTENT: COMENTÁRIOS / QUEM AJUDOU -->
+        <div id="content-comentarios" class="tab-content hidden mb-12">
+            <!-- Social Proof Area -->
+            <div class="bg-white rounded-xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-gray-100 border-t-[4px] border-t-primary-600 mb-12">
+                <!-- Header -->
+                <div class="flex flex-col items-center pt-8 pb-4">
+                    <div class="flex -space-x-2 mb-3">
+                        <div class="w-8 h-8 rounded-full border-2 border-white bg-blue-500 flex items-center justify-center"></div>
+                        <div class="w-8 h-8 rounded-full border-2 border-white bg-red-500 flex items-center justify-center"></div>
+                        <div class="w-8 h-8 rounded-full border-2 border-white bg-green-500 flex items-center justify-center"></div>
+                        <div class="w-8 h-8 rounded-full border-2 border-white bg-purple-500 flex items-center justify-center"></div>
+                        <div class="w-8 h-8 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-xs text-gray-600 font-bold">+</div>
+                    </div>
+                    <h3 class="text-xl font-extrabold text-gray-900 tracking-tight">480 pessoas já apoiaram o Endril</h3>
+                    <div class="w-48 h-px bg-gray-200 mt-5"></div>
+                </div>
+
+                <!-- Comments List -->
+                <div class="px-6 pb-2">
+                    <!-- Comment 1 -->
+                    <div class="py-5">
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-pink-700 font-semibold text-sm flex-shrink-0">AC</div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div class="flex items-center flex-wrap gap-2">
+                                        <span class="font-bold text-gray-900 text-[15px]">Amanda C.</span>
+                                        <div class="w-1.5 h-1.5 rounded-full bg-primary-500"></div>
+                                        <span class="text-xs text-gray-400 font-medium">há 3 min</span>
+                                    </div>
+                                    <span class="bg-primary-50 text-primary-700 rounded-full px-2.5 py-1 text-xs font-bold border border-primary-100">R$ 50</span>
+                                </div>
+                                <p class="text-gray-600 text-[15px] leading-relaxed mb-3">Menino de 12 anos vendendo pastéis no calor do Nordeste. Torço pelo Endril!</p>
+                                <button onclick="toggleLike(this)" class="flex items-center gap-1.5 text-gray-400 font-semibold text-[13px] hover:text-primary-600 transition-colors">
+                                    <svg class="w-4 h-4 like-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                                    </svg>
+                                    <span class="like-count">342</span>
+                                    <span>Curtir</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="h-px w-full bg-gray-100"></div>
+
+                    <!-- Comment 2 -->
+                    <div class="py-5">
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 font-bold text-sm flex-shrink-0">?</div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div class="flex items-center flex-wrap gap-2">
+                                        <span class="font-bold text-gray-900 text-[15px]">Anônimo</span>
+                                        <div class="w-1.5 h-1.5 rounded-full bg-primary-500"></div>
+                                        <span class="text-xs text-gray-400 font-medium">há 12 min</span>
+                                    </div>
+                                    <span class="bg-primary-50 text-primary-700 rounded-full px-2.5 py-1 text-xs font-bold border border-primary-100">R$ 200</span>
+                                </div>
+                                <p class="text-gray-600 text-[15px] leading-relaxed mb-3">Em vez de brincar, trabalha para colocar comida na mesa. Chorei e ajudei. O Endril merece apoio.</p>
+                                <button onclick="toggleLike(this)" class="flex items-center gap-1.5 text-gray-400 font-semibold text-[13px] hover:text-primary-600 transition-colors">
+                                    <svg class="w-4 h-4 like-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                                    </svg>
+                                    <span class="like-count">288</span>
+                                    <span>Curtir</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="h-px w-full bg-gray-100"></div>
+
+                    <!-- Comment 3 -->
+                    <div class="py-5">
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-semibold text-sm flex-shrink-0">RL</div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div class="flex items-center flex-wrap gap-2">
+                                        <span class="font-bold text-gray-900 text-[15px]">Renata L.</span>
+                                        <div class="w-1.5 h-1.5 rounded-full bg-primary-500"></div>
+                                        <span class="text-xs text-gray-400 font-medium">há 18 min</span>
+                                    </div>
+                                    <span class="bg-primary-50 text-primary-700 rounded-full px-2.5 py-1 text-xs font-bold border border-primary-100">R$ 30</span>
+                                </div>
+                                <p class="text-gray-600 text-[15px] leading-relaxed mb-3">Sonho dele é uma TV — mas antes vem comida e moradia. Ajudei para a familia!</p>
+                                <button onclick="toggleLike(this)" class="flex items-center gap-1.5 text-gray-400 font-semibold text-[13px] hover:text-primary-600 transition-colors">
+                                    <svg class="w-4 h-4 like-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                                    </svg>
+                                    <span class="like-count">313</span>
+                                    <span>Curtir</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="h-px w-full bg-gray-100"></div>
+
+                    <!-- Comment 4 -->
+                    <div class="py-5">
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-700 font-semibold text-sm flex-shrink-0">AM</div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div class="flex items-center flex-wrap gap-2">
+                                        <span class="font-bold text-gray-900 text-[15px]">Anjos do Endril</span>
+                                        <span class="text-xs text-gray-400 font-medium ml-1">há 31 min</span>
+                                    </div>
+                                    <span class="bg-primary-50 text-primary-700 rounded-full px-2.5 py-1 text-xs font-bold border border-primary-100">R$ 200</span>
+                                </div>
+                                <p class="text-gray-600 text-[15px] leading-relaxed mb-3">Cada nome representa esperança. Torcendo pelo Endril e sua familia.</p>
+                                <button onclick="toggleLike(this)" class="flex items-center gap-1.5 text-gray-400 font-semibold text-[13px] hover:text-primary-600 transition-colors">
+                                    <svg class="w-4 h-4 like-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                                    </svg>
+                                    <span class="like-count">198</span>
+                                    <span>Curtir</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                
+                <!-- Footer text -->
+                <div class="py-5 border-t border-gray-100 text-center">
+                    <p class="text-[13px] text-gray-400 italic">Você precisa estar logado para comentar.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 pt-16 pb-32">
+        <!-- ... keeping footer unchanged ... -->
+        <div class="max-w-[720px] mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                <div>
+                    <h4 class="text-white text-sm font-semibold mb-4">Sobre a Plataforma</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="#" class="hover:text-white transition-default">Quem somos</a></li>
+                        <li><a href="#" class="hover:text-white transition-default">Termos de uso</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white text-sm font-semibold mb-4">Suporte ao Doador</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="#" class="hover:text-white transition-default">Central de Ajuda</a></li>
+                        <li><a href="#" class="hover:text-white transition-default">Segurança</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white text-sm font-semibold mb-4">Contato Institucional</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="#" class="hover:text-white transition-default">Fale conosco</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 pt-8 flex items-center justify-between">
+                <p class="text-xs text-gray-500">© 2026 Plataforma de Arrecadação. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Fixed Floating CTA -->
+    <div class="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 z-30 flex justify-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+        <button onclick="openDonationModal()" class="bg-[#00c853] hover:bg-green-600 text-white w-full max-w-[720px] py-3.5 rounded font-black tracking-wide text-[15px] transition-default shadow-lg flex items-center justify-center gap-2 animate-[pulse_1.5s_ease-in-out_infinite]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+            </svg>
+            APOIAR ESTA CAUSA
+        </button>
+    </div>
+
+    <!-- Modals Container -->
+    <div id="modal-container" class="fixed inset-0 z-50 flex items-center justify-center px-4 modal-overlay bg-gray-900/50 backdrop-blur-sm">
+        
+        <!-- Urgent 5s Pop-up -->
+        <div id="modal-urgent" class="hidden bg-white rounded-2xl w-full max-w-[380px] relative modal-content shadow-xl overflow-hidden">
+            <!-- Header Laranja -->
+            <div class="bg-[#d97706] text-white py-2 px-4 flex items-center justify-center relative">
+                <span class="font-bold text-sm tracking-wide flex items-center gap-2 uppercase">
+                    ⏰ SUA AJUDA É URGENTE
+                </span>
+                <button onclick="closeModal()" class="absolute right-3 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="p-6 text-center">
+                <!-- Imagem com brilho -->
+                <div class="w-24 h-24 rounded-full mx-auto mb-4 p-1 bg-white shadow-[0_0_15px_rgba(34,197,94,0.5)]">
+                    <img src="imagens/image.png" alt="Endril" class="w-full h-full rounded-full object-cover">
+                </div>
+
+                <h3 class="text-2xl font-black text-red-600 mb-3 leading-tight tracking-tight">
+                    ATENÇÃO: Não feche essa página!
+                </h3>
+                
+                <p class="text-gray-700 mb-6 text-[15px] leading-relaxed font-medium">
+                    Você vai mesmo fechar a página e virar as costas para o Endril? O tempo está acabando e a família dele não tem o que comer <strong>hoje</strong>. <br><br>A sua doação, por menor que seja, faz a diferença entre a fome e a esperança. <strong>Por favor, não vá embora sem ajudar.</strong>
+                </p>
+
+                <!-- Banner -->
+                <div class="bg-green-50 text-green-700 font-medium text-sm py-2 px-4 rounded mb-5">
+                    Escolha um valor e ajude agora.
+                </div>
+
+                <!-- Botões de Valor -->
+                <div class="grid grid-cols-2 gap-3 mb-5">
+                    <button onclick="selectUrgentAmount(20)" class="bg-white border-2 border-green-500 text-green-600 font-bold py-3 rounded-lg hover:bg-green-50 transition-colors text-lg">
+                        R$20
+                    </button>
+                    <button onclick="selectUrgentAmount(50)" class="bg-white border-2 border-green-500 text-green-600 font-bold py-3 rounded-lg hover:bg-green-50 transition-colors text-lg">
+                        R$50
+                    </button>
+                    <button onclick="selectUrgentAmount(70)" class="bg-white border-2 border-green-500 text-green-600 font-bold py-3 rounded-lg hover:bg-green-50 transition-colors text-lg">
+                        R$70
+                    </button>
+                    <div class="relative">
+                        <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[9px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap z-10 flex items-center gap-1">
+                            <span class="text-red-500">♥️</span> MAIS ESCOLHIDO
+                        </div>
+                        <button onclick="selectUrgentAmount(100)" class="w-full bg-green-500 border-2 border-green-500 text-white font-bold py-3 rounded-lg shadow-[0_4px_10px_rgba(34,197,94,0.4)] hover:bg-green-600 hover:border-green-600 transition-colors text-lg">
+                            R$100
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Outro valor -->
+                <button onclick="openDonationModal()" class="text-gray-500 underline text-sm font-medium hover:text-gray-800 transition-colors">
+                    Escolher outro valor
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 1: Donation Amount Modal -->
+        <div id="modal-step-1" class="hidden bg-white rounded-lg w-full max-w-[480px] p-6 relative modal-content shadow-xl border border-gray-100">
+            <button onclick="closeModal()" class="absolute top-4 right-4 w-8 h-8 rounded flex items-center justify-center text-gray-400 hover:bg-gray-100 transition-default">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            
+            <div class="mb-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-1">
+                    Selecione o valor do apoio
+                </h3>
+                <p class="text-sm text-gray-500">Sua contribuição fará a diferença nesta campanha.</p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+                <button onclick="selectAmount(30)" class="value-btn font-semibold py-3 rounded text-base transition-default">R$ 30</button>
+                <button onclick="selectAmount(50)" class="value-btn font-semibold py-3 rounded text-base transition-default">R$ 50</button>
+                <button onclick="selectAmount(70)" class="value-btn font-semibold py-3 rounded text-base transition-default">R$ 70</button>
+                <button onclick="selectAmount(100)" class="value-btn font-semibold py-3 rounded text-base transition-default bg-primary-50 border-primary-500 text-primary-700 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-primary-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-bl">Recomendado</div>
+                    R$ 100
+                </button>
+                <button onclick="selectAmount(150)" class="value-btn font-semibold py-3 rounded text-base transition-default">R$ 150</button>
+                <button onclick="selectAmount(200)" class="value-btn font-semibold py-3 rounded text-base transition-default">R$ 200</button>
+                <button onclick="selectAmount(300)" class="value-btn font-semibold py-3 rounded text-base transition-default">R$ 300</button>
+                <button onclick="selectAmount(500)" class="value-btn font-semibold py-3 rounded text-base transition-default">R$ 500</button>
+                <button onclick="selectAmount(1000)" class="value-btn font-semibold py-3 rounded text-base transition-default">R$ 1.000</button>
+            </div>
+            
+            <div class="text-center bg-gray-50 rounded p-4 border border-gray-100 flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-gray-400">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                </svg>
+                <span class="text-xs text-gray-500 font-medium">Os pagamentos são criptografados de ponta a ponta.</span>
+            </div>
+        </div>
+
+        <!-- Step 2: Pix Payment Modal (Redesigned) -->
+        <div id="modal-step-2" class="hidden bg-[#f7f7f7] rounded-3xl w-full max-w-[420px] p-8 relative modal-content shadow-xl border border-gray-100">
+            <!-- Icon/Logo at the top -->
+            <div class="flex justify-center mb-4">
+                <div class="w-14 h-14 rounded-full bg-green-50 border border-green-100 shadow-sm flex items-center justify-center p-2.5 text-[#00c853]">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+                    </svg>
+                </div>
+            </div>
+            
+            <h3 class="text-xl font-bold text-gray-900 text-center mb-2 leading-tight">
+                Você é a nossa última esperança ❤️
+            </h3>
+            
+            <p class="text-[13px] text-gray-500 text-center mb-6 font-medium px-2">
+                Finalize o pagamento abaixo para confirmar sua doação!
+            </p>
+            
+            <div class="text-center mb-6 flex flex-col items-center">
+                <div>
+                    <span class="text-gray-700 text-sm font-medium">Valor total: </span>
+                    <span id="pix-amount-display" class="text-lg font-bold text-[#00c853]">R$ 20,00</span>
+                </div>
+                <!-- Countdown Timer -->
+                <div class="mt-3 bg-red-50 text-red-600 px-4 py-2 rounded-full border border-red-100 flex items-center gap-2 inline-flex shadow-[0_0_10px_rgba(220,38,38,0.1)]">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 animate-pulse">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="text-[12px] font-black tracking-wide uppercase">Seu código expira em: <span id="pix-timer">10:00</span></span>
+                </div>
+            </div>
+
+            <p class="text-[13px] text-gray-800 text-center mb-5 font-medium px-4 leading-snug">
+                Escaneie o QR Code ou copie o código Pix abaixo para finalizar o pagamento.
+            </p>
+            
+            <div class="bg-white p-3 rounded-2xl border border-gray-200 shadow-sm inline-block mx-auto relative flex items-center justify-center w-[220px] h-[220px] mb-6">
+                <div id="pix-loading" class="absolute inset-0 flex items-center justify-center bg-white/90 z-10 hidden rounded-2xl">
+                    <svg class="animate-spin h-8 w-8 text-[#00c853]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+                <img id="pix-qr-code" src="" alt="QR Code Pix" class="w-full h-full object-contain">
+            </div>
+
+            <div class="relative flex items-center justify-center mb-6 px-4">
+                <div class="absolute inset-0 flex items-center px-4">
+                    <div class="w-full border-t border-gray-300"></div>
+                </div>
+                <div class="relative bg-[#f7f7f7] px-3 text-[12px] text-gray-500 lowercase">ou</div>
+            </div>
+
+            <div class="mb-8">
+                <div class="relative w-full mb-3">
+                    <input id="pix-code-input" type="text" readonly value="..." class="w-full bg-white border border-gray-200 text-gray-800 text-[13px] rounded-xl px-4 py-3 outline-none overflow-hidden text-ellipsis shadow-sm">
+                </div>
+                <button id="copy-btn" onclick="copyPixCode()" class="w-full bg-[#00c853] hover:bg-green-600 text-white font-bold py-3.5 rounded-xl transition-colors shadow-md text-sm tracking-wide">
+                    COPIAR CÓDIGO PIX
+                </button>
+            </div>
+            
+            <!-- Como pagar -->
+            <div class="bg-[#f0f0f0] rounded-2xl p-5 border border-gray-100">
+                <h4 class="font-bold text-gray-900 text-center mb-4 text-sm">Como pagar?</h4>
+                
+                <div class="flex items-start gap-4 mb-4">
+                    <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0 mt-0.5 text-gray-600 font-bold text-lg leading-none">
+                        +
+                    </div>
+                    <p class="text-[12px] text-gray-600 leading-snug">
+                        Escaneie o QR Code ou copie e cole o código Pix em seu app bancário ou carteira digital.
+                    </p>
+                </div>
+                
+                <div class="flex items-start gap-4">
+                    <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 text-gray-600">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                        </svg>
+                    </div>
+                    <p class="text-[12px] text-gray-600 leading-snug">
+                        Seu pagamento será aprovado em alguns instantes.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Success Screen -->
+        <div id="modal-step-3" class="hidden bg-white rounded-lg w-full max-w-[420px] p-8 relative modal-content shadow-xl border border-gray-100 text-center">
+            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5 text-green-500">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-10 h-10">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+            </div>
+            
+            <h3 class="text-2xl font-bold text-gray-900 mb-2">
+                Pagamento Aprovado!
+            </h3>
+            <p class="text-gray-600 mb-8 leading-relaxed">
+                Muito obrigado! Sua contribuição já foi recebida e fará toda a diferença na vida do Endril e sua família.
+            </p>
+            
+            <button onclick="closeModal()" class="w-full bg-gray-900 hover:bg-gray-800 text-white font-semibold py-3.5 rounded transition-default">
+                Voltar para a campanha
+            </button>
+        </div>
+    </div>
+
+    <!-- Notification Toast Container -->
+    <div id="toast-container" class="fixed top-20 right-4 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+    <script>
+        // Dropdown Menu Logic
+        function toggleMenu() {
+            const menu = document.getElementById('header-menu');
+            menu.classList.toggle('active');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const menu = document.getElementById('header-menu');
+            const button = e.target.closest('button');
+            if (menu.classList.contains('active') && (!button || button.getAttribute('onclick') !== 'toggleMenu()') && !e.target.closest('#header-menu')) {
+                menu.classList.remove('active');
+            }
+        });
+
+        // Tab Switching Logic
+        function switchTab(tabName) {
+            // Remove active classes from all tabs and hide all contents
+            ['sobre', 'atualizacoes', 'comentarios'].forEach(t => {
+                const tabBtn = document.getElementById('tab-' + t);
+                const contentDiv = document.getElementById('content-' + t);
+                
+                // Reset button style
+                tabBtn.classList.remove('active', 'bg-white', 'shadow', 'font-semibold', 'text-gray-900');
+                tabBtn.classList.add('text-gray-500');
+                
+                // Hide content
+                contentDiv.classList.add('hidden');
+            });
+
+            // Activate chosen tab
+            const activeBtn = document.getElementById('tab-' + tabName);
+            activeBtn.classList.remove('text-gray-500');
+            activeBtn.classList.add('active', 'bg-white', 'shadow', 'font-semibold', 'text-gray-900');
+            
+            // Show chosen content
+            document.getElementById('content-' + tabName).classList.remove('hidden');
+
+            // Close mobile menu if open
+            document.getElementById('header-menu').classList.remove('active');
+        }
+
+        // Like Interaction with Animation
+        function toggleLike(btn) {
+            const icon = btn.querySelector('.like-icon');
+            const countSpan = btn.querySelector('.like-count');
+            let count = parseInt(countSpan.textContent);
+            
+            if (btn.classList.contains('liked')) {
+                // Remove Like
+                btn.classList.remove('liked', 'text-primary-600');
+                btn.classList.add('text-gray-400');
+                
+                icon.classList.remove('text-primary-600');
+                icon.setAttribute('fill', 'none');
+                
+                count--;
+            } else {
+                // Add Like
+                btn.classList.add('liked', 'text-primary-600');
+                btn.classList.remove('text-gray-400');
+                
+                icon.classList.add('text-primary-600');
+                icon.setAttribute('fill', 'currentColor');
+                
+                count++;
+                
+                // Pop animation
+                icon.style.transform = 'scale(1.4)';
+                setTimeout(() => {
+                    icon.style.transform = 'scale(1)';
+                }, 200);
+            }
+            
+            countSpan.textContent = count;
+        }
+
+        // Progress bar animation
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const progressBar = document.getElementById('progress-bar');
+                if (progressBar) {
+                    progressBar.style.width = progressBar.getAttribute('data-target');
+                }
+            }, 300);
+        });
+
+        // Real-time fake notifications (Não repetitivas)
+        const originalNames = ["Carlos M.", "Ana P.", "Lucas T.", "Juliana R.", "Roberto C.", "Fernanda G.", "Felipe C.", "Marcelo S.", "Letícia B.", "João V.", "Maria E.", "Thiago Alves", "Gabriel S.", "Camila D.", "Rodrigo M.", "Bruna K."];
+        let fakeNamesPool = [...originalNames];
+        let fakeAmountsPool = ["R$ 20,00", "R$ 25,00", "R$ 30,00", "R$ 50,00", "R$ 15,00", "R$ 100,00", "R$ 40,00", "R$ 10,00", "R$ 70,00", "R$ 35,00"];
+        let fakeMessagesPool = [
+            "enviei o q tinha na conta, mas foi de coração", 
+            "espero q ajude a familia dele 🙏",
+            "q Deus abençoe vcs!!",
+            "pouco mas de coração msm",
+            "fiz minha parte, força Endril!",
+            "mandei oq deu hj, vamo ajudar galera",
+            "dei uma ajudinha tb, q de td certo",
+            "Gente vamos ajudar, acabei de mandar um pix aq",
+            "q vcs consigam bater a meta logo 🙌",
+            "ajudando como posso, deus abençoe vcs",
+            "fiz o pix agr, força p vcs",
+            "não é mt mas espero q faça a diferença",
+            "Doação feita! Força pequeno ❤️",
+            "Ajudei com oq deu aq tb",
+            "acabei de doar, q deus multiplique",
+            "bora ajudar galera, mandei meu pix agr",
+            "espero q ajude vcs a passarem por isso",
+            "Mandei um dinheirinho pra ajudar",
+            "Deus é fiel, acabei de mandar",
+            "Só vi agr e já mandei, espero q ajude!",
+            "Força Endril, vc é guerreiro dms mlk",
+            "n tenho mt mas n podia deixar de ajudar"
+        ];
+        
+        function showNotification() {
+            // Stop Se não tiver mais mensagens
+            if (fakeMessagesPool.length === 0) return;
+            
+            const container = document.getElementById('toast-container');
+            
+            const nameIndex = Math.floor(Math.random() * fakeNamesPool.length);
+            const msgIndex = Math.floor(Math.random() * fakeMessagesPool.length);
+            const amountIndex = Math.floor(Math.random() * fakeAmountsPool.length);
+            
+            // Pega o item e remove do array pra não repetir
+            const name = fakeNamesPool.splice(nameIndex, 1)[0];
+            const msg = fakeMessagesPool.splice(msgIndex, 1)[0];
+            const amount = fakeAmountsPool.splice(amountIndex, 1)[0] || "R$ 20,00"; // Fallback se acabar
+            
+            // Se acabar os nomes, repete com nomes reais
+            if(fakeNamesPool.length === 0) fakeNamesPool = [...originalNames];
+            
+            const toast = document.createElement('div');
+            toast.className = 'bg-white rounded-lg shadow-lg border border-gray-100 p-4 flex items-start gap-3 w-80 toast-notification';
+            toast.innerHTML = `
+                <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 flex-shrink-0 mt-0.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                </div>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between mb-0.5">
+                        <p class="text-sm font-bold text-gray-900">${name}</p>
+                        <p class="text-xs font-black text-[#00c853] bg-green-50 px-1.5 py-0.5 rounded">${amount}</p>
+                    </div>
+                    <p class="text-[13px] text-gray-600 italic leading-snug">"${msg}"</p>
+                </div>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Trigger animation in
+            setTimeout(() => toast.classList.add('show'), 10);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 5000);
+        }
+
+        // Trigger notifications randomly between 6 and 15 seconds
+        function scheduleNextNotification() {
+            const nextTime = Math.random() * (15000 - 6000) + 6000;
+            setTimeout(() => {
+                showNotification();
+                scheduleNextNotification();
+            }, nextTime);
+        }
+        
+        // Start notifications after 3 seconds
+        setTimeout(scheduleNextNotification, 3000);
+
+        // Modal Logic
+        const modalContainer = document.getElementById('modal-container');
+        const modalStep1 = document.getElementById('modal-step-1');
+        const modalStep2 = document.getElementById('modal-step-2');
+        const modalStep3 = document.getElementById('modal-step-3');
+        const modalUrgent = document.getElementById('modal-urgent');
+        const pixAmountDisplay = document.getElementById('pix-amount-display');
+        
+        let pollingIntervalId = null;
+
+        function openDonationModal() {
+            modalContainer.classList.add('active');
+            modalStep1.classList.remove('hidden');
+            modalStep2.classList.add('hidden');
+            modalStep3.classList.add('hidden');
+            modalUrgent.classList.add('hidden');
+            document.body.style.overflow = 'hidden';
+            
+            // Close menu se aberto
+            document.getElementById('header-menu').classList.remove('active');
+        }
+
+        function openUrgentModal() {
+            // Só abrir se já não estiver com o modal aberto
+            if (!modalContainer.classList.contains('active')) {
+                modalContainer.classList.add('active');
+                modalUrgent.classList.remove('hidden');
+                modalStep1.classList.add('hidden');
+                modalStep2.classList.add('hidden');
+                modalStep3.classList.add('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function selectUrgentAmount(amount) {
+            // Oculta o modal urgente e segue pro pix direto (step 2)
+            modalUrgent.classList.add('hidden');
+            selectAmount(amount);
+        }
+
+        function closeModal() {
+            modalContainer.classList.remove('active');
+            document.body.style.overflow = '';
+            
+            // Parar o polling caso o usuario feche o modal
+            if (pollingIntervalId) {
+                clearInterval(pollingIntervalId);
+                pollingIntervalId = null;
+            }
+        }
+
+        modalContainer.addEventListener('click', (e) => {
+            if (e.target === modalContainer) {
+                closeModal();
+            }
+        });
+
+        let pixTimerInterval;
+        function startPixTimer() {
+            clearInterval(pixTimerInterval);
+            let time = 600; // 10 minutes
+            const display = document.getElementById('pix-timer');
+            if(!display) return;
+            display.textContent = "10:00";
+            
+            pixTimerInterval = setInterval(() => {
+                time--;
+                if(time < 0) {
+                    clearInterval(pixTimerInterval);
+                    return;
+                }
+                const minutes = Math.floor(time / 60);
+                const seconds = time % 60;
+                display.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        async function selectAmount(amount) {
+            const formattedAmount = amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+            pixAmountDisplay.textContent = `R$ ${formattedAmount}`;
+            
+            modalStep1.classList.add('hidden');
+            modalStep2.classList.remove('hidden');
+
+            // Start countdown
+            startPixTimer();
+
+            const loadingOverlay = document.getElementById('pix-loading');
+            const qrCodeImg = document.getElementById('pix-qr-code');
+            const pixCodeInput = document.getElementById('pix-code-input');
+            const copyBtn = document.getElementById('copy-btn');
+            
+            // UI Loading state
+            loadingOverlay.classList.remove('hidden');
+            qrCodeImg.style.opacity = '0.2';
+            pixCodeInput.value = 'Gerando código PIX...';
+            copyBtn.disabled = true;
+            copyBtn.style.opacity = '0.5';
+
+            try {
+                // Utilizando a nova estrutura do gateway-pix.js
+                const data = await window.criarPixGateway(amount);
+                
+                // Mapeamento tolerante de propriedades comuns de payloads PIX
+                const pixString = data.pixCode || data.payload || data.qrcode || data.qr_code_base64 || data.copiaECola || (data.data && data.data.qrcode) || data.qrCode || data.codigoCopiaECola;
+                
+                if (pixString) {
+                    pixCodeInput.value = pixString;
+                    
+                    // Tratamento da Imagem QR Code
+                    if (data.qrCodeImage || data.qr_code_image || data.imagem_qr_code || data.base64) {
+                        const img = data.qrCodeImage || data.qr_code_image || data.imagem_qr_code || data.base64;
+                        qrCodeImg.src = img.startsWith('data:image') ? img : `data:image/png;base64,${img}`;
+                    } else {
+                        qrCodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(pixString)}&color=111827`;
+                    }
+                    
+                    // Iniciar Polling - verificando se API nos entregou um transactionId ou Id
+                    const transactionId = data.transactionId || data.id || data.txid || data.transaction_id;
+                    if (transactionId) {
+                        pollingIntervalId = window.iniciarVerificacaoPagamento(transactionId, (resultado) => {
+                            // Sucesso!
+                            showSuccessScreen();
+                        });
+                    } else {
+                        console.log("A API não retornou transactionId para polling:", data);
+                    }
+                    
+                } else {
+                    pixCodeInput.value = "Erro ao ler resposta da API (verifique o formato do JSON)";
+                    console.log("Resposta recebida da API:", data);
+                }
+
+            } catch (error) {
+                console.error("Erro na geração do PIX:", error);
+                pixCodeInput.value = "Erro de conexão ao gerar o PIX.";
+            } finally {
+                // Restore UI state
+                loadingOverlay.classList.add('hidden');
+                qrCodeImg.style.opacity = '1';
+                copyBtn.disabled = false;
+                copyBtn.style.opacity = '1';
+            }
+        }
+        
+        // Tela de sucesso
+        function showSuccessScreen() {
+            modalStep2.classList.add('hidden');
+            modalStep3.classList.remove('hidden');
+            
+            // Disparar confetes se a biblioteca existir
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#22c55e', '#ffffff', '#15803d']
+                });
+            }
+        }
+
+        function showCopyAlert() {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'bg-gray-900 rounded-xl shadow-2xl border border-gray-700 p-5 flex flex-col items-center gap-3 w-80 toast-notification z-[100]';
+            toast.innerHTML = `
+                <div class="w-12 h-12 rounded-full bg-[#00c853] flex items-center justify-center text-white flex-shrink-0 animate-bounce">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-7 h-7"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                </div>
+                <div class="text-center">
+                    <p class="text-lg font-black text-white mb-1 uppercase tracking-wide text-green-400">Código Copiado!</p>
+                    <p class="text-[13px] text-gray-300 font-medium leading-relaxed">Agora abra o aplicativo do seu banco e cole na área <strong>PIX Copia e Cola</strong>.</p>
+                </div>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 8000);
+        }
+
+        function copyPixCode() {
+            const input = document.getElementById('pix-code-input');
+            input.select();
+            document.execCommand('copy');
+            
+            const copyBtn = document.getElementById('copy-btn');
+            const originalText = copyBtn.innerHTML;
+            copyBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+                COPIADO!
+            `;
+            copyBtn.classList.remove('bg-[#00c853]', 'hover:bg-green-600');
+            copyBtn.classList.add('bg-gray-900', 'hover:bg-gray-800');
+            
+            // Exibir a instrução agressiva
+            showCopyAlert();
+            
+            setTimeout(() => {
+                copyBtn.innerHTML = originalText;
+                copyBtn.classList.add('bg-[#00c853]', 'hover:bg-green-600');
+                copyBtn.classList.remove('bg-gray-900', 'hover:bg-gray-800');
+            }, 4000);
+        }
+
+        // Pop-up urgente inteligente (Exit-intent & Idle time)
+        let idleTimer;
+        let urgentModalShown = false;
+
+        function resetIdleTimer() {
+            clearTimeout(idleTimer);
+            if (!urgentModalShown) {
+                // Mais de 2 minutos (125 segundos) de inatividade abre o popup
+                idleTimer = setTimeout(() => {
+                    openUrgentModal();
+                    urgentModalShown = true;
+                }, 125000);
+            }
+        }
+
+        // Detecta inatividade
+        ['click', 'touchstart', 'mousemove', 'scroll'].forEach(evt => 
+            document.addEventListener(evt, resetIdleTimer, {passive: true})
+        );
+        resetIdleTimer();
+
+        // Detecta se tentar sair da pagina (Desktop)
+        document.addEventListener('mouseout', (e) => {
+            if (e.clientY < 0 && !urgentModalShown) {
+                openUrgentModal();
+                urgentModalShown = true;
+            }
+        });
+    </script>
+</body>
+</html>
